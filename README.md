@@ -1,4 +1,4 @@
-# fastText
+# [fastText](https://github.com/facebookresearch/fastText) -> [prop2vec](https://github.com/oavraham1/prop2vec)
 [fastText](https://fasttext.cc/) is a library for efficient learning of word representations and sentence classification.
 
 [![CircleCI](https://circleci.com/gh/facebookresearch/fastText/tree/master.svg?style=svg)](https://circleci.com/gh/facebookresearch/fastText/tree/master)
