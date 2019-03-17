@@ -7,6 +7,7 @@
  */
 
 #include "dictionary.h"
+#include "utils.h"
 
 #include <assert.h>
 
@@ -20,8 +21,7 @@
 namespace fasttext {
 
 const std::string Dictionary::EOS = "</s>";
-const std::string Dictionary::BOW = "<";
-const std::string Dictionary::EOW = ">";
+static const char PROP_VALUE_SEP = ':';
 
 Dictionary::Dictionary(std::shared_ptr<Args> args)
     : args_(args),
@@ -96,7 +96,7 @@ const std::vector<int32_t> Dictionary::getSubwords(
   }
   std::vector<int32_t> ngrams;
   if (word != EOS) {
-    computeSubwords(BOW + word + EOW, ngrams);
+    computeSubwords(word, ngrams);
   }
   return ngrams;
 }
@@ -113,7 +113,7 @@ void Dictionary::getSubwords(
     substrings.push_back(words_[i].word);
   }
   if (word != EOS) {
-    computeSubwords(BOW + word + EOW, ngrams, &substrings);
+    computeSubwords(word, ngrams, &substrings);
   }
 }
 
@@ -173,30 +173,23 @@ void Dictionary::computeSubwords(
     const std::string& word,
     std::vector<int32_t>& ngrams,
     std::vector<std::string>* substrings) const {
-  for (size_t i = 0; i < word.size(); i++) {
-    std::string ngram;
-    if ((word[i] & 0xC0) == 0x80) {
-      continue;
-    }
-    for (size_t j = i, n = 1; j < word.size() && n <= args_->maxn; n++) {
-      ngram.push_back(word[j++]);
-      while (j < word.size() && (word[j] & 0xC0) == 0x80) {
-        ngram.push_back(word[j++]);
-      }
-      if (n >= args_->minn && !(n == 1 && (i == 0 || j == word.size()))) {
-        int32_t h = hash(ngram) % args_->bucket;
-        pushHash(ngrams, h);
-        if (substrings) {
-          substrings->push_back(ngram);
-        }
-      }
-    }
+  //char x;
+  std::vector<std::string> propsValues = utils::split(word, '~');   /// prop2vec
+  for (auto value : propsValues) {
+      std::string prop = value.substr(0, value.find(PROP_VALUE_SEP));
+  const bool useProp = args_->props.find(prop) != args_->props.end();
+	if (useProp) {
+	  int32_t h = hash(value) % args_->bucket;
+	  ngrams.push_back(nwords_ + h);
+
+	  if(substrings)    substrings -> push_back(value);
+	}
   }
 }
 
 void Dictionary::initNgrams() {
   for (size_t i = 0; i < size_; i++) {
-    std::string word = BOW + words_[i].word + EOW;
+    std::string word = words_[i].word;
     words_[i].subwords.clear();
     words_[i].subwords.push_back(i);
     if (words_[i].word != EOS) {
@@ -328,7 +321,7 @@ void Dictionary::addSubwords(
     int32_t wid) const {
   if (wid < 0) { // out of vocab
     if (token != EOS) {
-      computeSubwords(BOW + token + EOW, line);
+      computeSubwords(token, line);
     }
   } else {
     if (args_->maxn <= 0) { // in vocab w/o subwords

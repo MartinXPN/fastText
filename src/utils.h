@@ -38,6 +38,8 @@ bool contains(const std::vector<T>& container, const T& value) {
       container.end();
 }
 
+  const std::vector<std::string> split(const std::string &text, char sep);
+
 } // namespace utils
 
 } // namespace fasttext

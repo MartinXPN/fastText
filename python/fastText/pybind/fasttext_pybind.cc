@@ -60,6 +60,7 @@ PYBIND11_MODULE(fasttext_pybind, m) {
       .def(py::init<>())
       .def_readwrite("input", &fasttext::Args::input)
       .def_readwrite("output", &fasttext::Args::output)
+      .def_readwrite("props", &fasttext::Args::props)
       .def_readwrite("lr", &fasttext::Args::lr)
       .def_readwrite("lrUpdateRate", &fasttext::Args::lrUpdateRate)
       .def_readwrite("dim", &fasttext::Args::dim)

@@ -322,6 +322,7 @@ def load_model(path):
 
 def train_supervised(
     input,
+    props="w+l+t+m+n",
     lr=0.1,
     dim=100,
     ws=5,
@@ -354,6 +355,7 @@ def train_supervised(
     repository such as the dataset pulled by classification-example.sh.
     """
     model = "supervised"
+    props = set(props.split('+'))
     a = _build_args(locals())
     ft = _FastText()
     fasttext.train(ft.f, a)
@@ -363,6 +365,7 @@ def train_supervised(
 def train_unsupervised(
     input,
     model="skipgram",
+    props="w+l+t+m+n",
     lr=0.05,
     dim=100,
     ws=5,
@@ -395,6 +398,7 @@ def train_unsupervised(
     dataset pulled by the example script word-vector-example.sh, which is
     part of the fastText repository.
     """
+    props = set(props.split('+'))
     a = _build_args(locals())
     ft = _FastText()
     fasttext.train(ft.f, a)

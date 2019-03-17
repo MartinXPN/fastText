@@ -7,6 +7,7 @@
  */
 
 #include "args.h"
+#include "utils.h"
 
 #include <stdlib.h>
 
@@ -14,6 +15,8 @@
 #include <stdexcept>
 
 namespace fasttext {
+
+static const char PROPS_SEP='+';
 
 Args::Args() {
   lr = 0.05;
@@ -42,6 +45,14 @@ Args::Args() {
   qnorm = false;
   cutoff = 0;
   dsub = 2;
+}
+
+void Args::initProps(std::string propsStr) {
+  props.clear();
+  std::vector<std::string> propsVec = utils::split(propsStr, PROPS_SEP);
+  for (const auto &i : propsVec) {
+    props.insert(i);
+  }
 }
 
 std::string Args::lossToString(loss_name ln) const {
@@ -105,6 +116,9 @@ void Args::parseArgs(const std::vector<std::string>& args) {
         input = std::string(args.at(ai + 1));
       } else if (args[ai] == "-output") {
         output = std::string(args.at(ai + 1));
+      } else if (args[ai] == "-props") {
+        propsStr = std::string(args[ai + 1]);
+        initProps(propsStr);
       } else if (args[ai] == "-lr") {
         lr = std::stof(args.at(ai + 1));
       } else if (args[ai] == "-lrUpdateRate") {
@@ -208,6 +222,7 @@ void Args::printBasicHelp() {
 
 void Args::printDictionaryHelp() {
   std::cerr << "\nThe following arguments for the dictionary are optional:\n"
+            << "  -props              properties to use (with '+' as separator, e.g. 'w+l+m')\n\n"
             << "  -minCount           minimal number of word occurences ["
             << minCount << "]\n"
             << "  -minCountLabel      minimal number of label occurences ["
@@ -270,6 +285,10 @@ void Args::save(std::ostream& out) {
   out.write((char*)&(maxn), sizeof(int));
   out.write((char*)&(lrUpdateRate), sizeof(int));
   out.write((char*)&(t), sizeof(double));
+
+  int len = (int) propsStr.size();
+  out.write((char*) &len, sizeof(int));
+  out.write(propsStr.c_str(), len);
 }
 
 void Args::load(std::istream& in) {
@@ -286,6 +305,15 @@ void Args::load(std::istream& in) {
   in.read((char*)&(maxn), sizeof(int));
   in.read((char*)&(lrUpdateRate), sizeof(int));
   in.read((char*)&(t), sizeof(double));
+
+  int len;
+  in.read((char*) &len, sizeof(int));
+  char* temp = new char[len+1];
+  in.read(temp, len);
+  temp[len] = '\0';
+  propsStr = temp;
+  delete [] temp;
+  initProps(propsStr);
 }
 
 void Args::dump(std::ostream& out) const {

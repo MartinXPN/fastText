@@ -12,6 +12,7 @@
 #include <ostream>
 #include <string>
 #include <vector>
+#include <unordered_set>
 
 namespace fasttext {
 
@@ -28,6 +29,7 @@ class Args {
   Args();
   std::string input;
   std::string output;
+  std::string propsStr;
   double lr;
   int lrUpdateRate;
   int dim;
@@ -47,6 +49,7 @@ class Args {
   std::string label;
   int verbose;
   std::string pretrainedVectors;
+  std::unordered_set<std::string> props;
   bool saveOutput;
 
   bool qout;
@@ -55,6 +58,7 @@ class Args {
   size_t cutoff;
   size_t dsub;
 
+  void initProps(std::string);
   void parseArgs(const std::vector<std::string>& args);
   void printHelp();
   void printBasicHelp();
