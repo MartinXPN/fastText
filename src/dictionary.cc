@@ -180,7 +180,7 @@ void Dictionary::computeSubwords(
   const bool useProp = args_->props.find(prop) != args_->props.end();
 	if (useProp) {
 	  int32_t h = hash(value) % args_->bucket;
-	  ngrams.push_back(nwords_ + h);
+	  pushHash(ngrams, h);
 
 	  if(substrings)    substrings -> push_back(value);
 	}
