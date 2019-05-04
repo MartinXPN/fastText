@@ -355,7 +355,9 @@ def train_supervised(
     repository such as the dataset pulled by classification-example.sh.
     """
     model = "supervised"
-    props = set(props.split('+'))
+    propsStr = str(props)
+    props = set(propsStr.split('+'))
+
     a = _build_args(locals())
     ft = _FastText()
     fasttext.train(ft.f, a)
@@ -398,7 +400,9 @@ def train_unsupervised(
     dataset pulled by the example script word-vector-example.sh, which is
     part of the fastText repository.
     """
-    props = set(props.split('+'))
+    propsStr = str(props)
+    props = set(propsStr.split('+'))
+
     a = _build_args(locals())
     ft = _FastText()
     fasttext.train(ft.f, a)
